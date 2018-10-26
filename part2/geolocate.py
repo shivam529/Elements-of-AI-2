@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# Geolocate progaram for tweet classification
+# Geolocate program for tweet classification
 
 import re, sys
 from queue import PriorityQueue
 
-# Stop words list obtained from google
+# Stop words list obtained from Google
 stop_words = ['','ourselves', 'hers', 'between', 'yourself', 'but', 'again', 'there', 'about', 'once', 'during', 'out', 'very', 'having', 'with', 'they', 'own', 'an', 'be', 'some', 'for', 'do', 'its', 'yours', 'such', 'into', 'of', 'most', 'itself', 'other', 'off', 'is', 's', 'am', 'or', 'who', 'as', 'from', 'him', 'each', 'the', 'themselves', 'until', 'below', 'are', 'we', 'these', 'your', 'his', 'through', 'don', 'nor', 'me', 'were', 'her', 'more', 'himself', 'this', 'down', 'should', 'our', 'their', 'while', 'above', 'both', 'up', 'to', 'ours', 'had', 'she', 'all', 'no', 'when', 'at', 'any', 'before', 'them', 'same', 'and', 'been', 'have', 'in', 'will', 'on', 'does', 'yourselves', 'then', 'that', 'because', 'what', 'over', 'why', 'so', 'can', 'did', 'not', 'now', 'under', 'he', 'you', 'herself', 'has', 'just', 'where', 'too', 'only', 'myself', 'which', 'those', 'i', 'after', 'few', 'whom', 't', 'being', 'if', 'theirs', 'my', 'against', 'a', 'by', 'doing', 'it', 'how', 'further', 'was', 'here', 'than']
 
 # Function to read the training file
@@ -29,10 +29,10 @@ def read(path):
         # Read till EOF
         if line != ['']:
             for m in range(0,len(line)):
-                # Spilt each line into words
+                # Split each line into words
                 message.extend(line[m].split())
 
-            # Remove everything except alphabhets and numbers and conver to lower case
+            # Remove everything except alphabets and numbers and convert to lower case
             message = [re.sub('[^a-zA-Z0-9]','',i.lower()) for i in message]
             # Remove stop words
             message = [i for i in message if i not in stop_words]
@@ -63,7 +63,7 @@ def read(path):
     # Return both dictionary and total tweet count
     return cities_words,cities,count_tweets
 
-# Function to calculate the P(W|L) that is probabilty of a word 'W' given a location L
+# Function to calculate the P(W|L) that is probability of a word 'W' given a location L
 # P(W|L) = P(W intersection L)/P(L)
 # P(L) has been already calculate in cities dictionary
 # P(W intersection L) = (no. of tweets of city L and containing word W)/(Total number of tweets)
@@ -78,12 +78,12 @@ def probablity(cities_words,cities,tweet_count):
     count = 0
     for city,tweet_list in cities_words.items():
 
-        # Create a new dictionary for words and respective probabilty inside probablity_dict
+        # Create a new dictionary for words and respective probability inside probablity_dict
         probabilty_dict[city] = dict()
         for tweet in tweet_list:            
             for word in tweet:
 
-                # If its a new word store the word and its probablity as 1/((total tweet count)*P(L))
+                # If its a new word store the word and its probability as 1/((total tweet count)*P(L))
                 # Else if the word appears again in a tweet of a location
                 # add 1/((total tweet count)*P(L))
                 # (1+1+...no of times the word appears)/(total tweet count) is equal to P(W intersection L)
@@ -110,7 +110,7 @@ def read_test(path,likeliness,cities,output):
         message = list()
         if line != ['']:
 
-            # Splitting the tweet into words and removal of unnecessay characters/words
+            # Splitting the tweet into words and removal of unnecessary characters/words
             for m in range(0,len(line)):
                 message.extend(line[m].split())
             message = [re.sub('[^a-zA-Z0-9]','',i.lower()) for i in message]
@@ -118,8 +118,8 @@ def read_test(path,likeliness,cities,output):
             message.pop(0)
             message.pop(0)
 
-            # Calculation of posterior probablities for all cities for this particular tweet
-            # Set initial value of Posterior probablity to 0 and city as empty string 
+            # Calculation of posterior probabilities for all cities for this particular tweet
+            # Set initial value of Posterior probability to 0 and city as empty string 
             city = ''
             Posterior_Probability = 0            
             for x,y in likeliness.items():
@@ -129,7 +129,7 @@ def read_test(path,likeliness,cities,output):
                 temp_posterior_probability = cities[x]
 
                 # For each word in tweet check if P(W|L) is in the likeliness dictionary
-                # If yes then multiply it else multiple by 0.00001(some low probabilty) 
+                # If yes then multiply it else multiple by 0.00001(some low probability) 
                 for word in message:
                     if word in y:
                         temp_posterior_probability = temp_posterior_probability * y[word] 
@@ -141,32 +141,16 @@ def read_test(path,likeliness,cities,output):
                     Posterior_Probability = temp_posterior_probability
                     city = x
 
-            # Write the city name with the highest posterior probablity for this tweet to the output file
+            # Write the city name with the highest posterior probability for this tweet to the output file
             output.write(city+ ',' +l)
         else:
             break
     output.close()    
     file.close()
 
-def accuracy():
-    file = open("output.txt")
-    accuracy_count = 0
-    test_tweet_count = 0
-    while True:
-        line = file.readline().split(',')
-        message = list()
-        test_tweet_count += 1
-        if line != ['']:
-            if line[0] == line[2]:
-                accuracy_count += 1
-        else:
-            break    
-    file.close()
-    return ((accuracy_count*100)/test_tweet_count)
-
 
 # Function to find the top 5 words for each city
-# Here we invert the key value pairs in lilelihood dictionary and store it in a priority queue
+# Here we invert the key value pairs in likelihood dictionary and store it in a priority queue
 # and then pop from the priority queue to get top 5 words
 def top_words(word_dict):
     for x,y in word_dict.items():
@@ -176,7 +160,7 @@ def top_words(word_dict):
         q = PriorityQueue()
         for i,j in y.items():
 
-            # store probablity as negative values so that the highest probable word as a negative value 
+            # store probability as negative values so that the highest probable word as a negative value 
             # becomes the most negative(or least value) and hence gets poped first from the priority queue
             q.put(((-j),i)) 
         print("\nTop Words of Location %s are" % x)
@@ -197,17 +181,16 @@ Output_file = str(sys.argv[3])
 # and the total tweet count
 cities_and_tweets,cities_dict,tweet_count = read(Training_file)
 
-# Calculate P(L) probablity of a tweet belonging to a particular location
+# Calculate P(L) probability of a tweet belonging to a particular location
 # P(L) = (no. of tweets for that location)/(total number of tweets)
 for x,y in cities_dict.items():
     cities_dict[x] = cities_dict[x]/tweet_count
 
-# Call the probablity fuction to calculate the likelihood probabilities i.e. P(W|L)
+# Call the probability function to calculate the likelihood probabilities i.e. P(W|L)
 likelihood = probablity(cities_and_tweets,cities_dict,tweet_count)
 
-# Call this function to read the test file and calculate the posterior probablities
+# Call this function to read the test file and calculate the posterior probabilities
 read_test(Test_file,likelihood,cities_dict,Output_file)
-print(accuracy())
 
 # Call this function to get the top 5 words for each location from likelihood dictionary
 top_words(likelihood)
